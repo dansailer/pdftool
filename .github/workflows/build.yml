@@ -1,0 +1,233 @@
+name: Build
+
+on:
+  release:
+    types: [published]
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  # build-macos-arm:
+  #   name: Build macOS ARM64
+  #   runs-on: macos-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '20'
+
+  #     - name: Setup pnpm
+  #       uses: pnpm/action-setup@v4
+  #       with:
+  #         version: 9
+
+  #     - name: Setup Rust
+  #       uses: dtolnay/rust-toolchain@stable
+  #       with:
+  #         targets: aarch64-apple-darwin
+
+  #     - name: Cache Rust dependencies (macOS)
+  #       uses: Swatinem/rust-cache@v2
+  #       with:
+  #         workspaces: src-tauri
+  #         shared-key: macos-arm64
+
+  #     - name: Cache pnpm dependencies (macOS)
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: ~/.pnpm-store
+  #         key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-pnpm-
+
+  #     - name: Install dependencies (macOS)
+  #       run: pnpm install --frozen-lockfile
+
+  #     - name: Cache PDFium library (macOS ARM64)
+  #       id: cache-pdfium-macos
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: src-tauri/libpdfium.dylib
+  #         key: pdfium-mac-arm64-chromium-7643
+
+  #     - name: Download PDFium library (macOS ARM64)
+  #       if: steps.cache-pdfium-macos.outputs.cache-hit != 'true'
+  #       run: |
+  #         curl -L -o pdfium-mac-arm64.tgz "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7643/pdfium-mac-arm64.tgz"
+  #         mkdir -p pdfium-mac-arm64 && tar -xzf pdfium-mac-arm64.tgz -C pdfium-mac-arm64
+  #         cp pdfium-mac-arm64/lib/libpdfium.dylib src-tauri/
+  #         rm -rf pdfium-mac-arm64 pdfium-mac-arm64.tgz
+
+  #     - name: Build Tauri app (macOS ARM64)
+  #       run: pnpm run tauri build
+  #       env:
+  #         TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+  #         TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+
+  #     - name: Upload macOS ARM64 artifacts
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: macos-arm64
+  #         path: |
+  #           src-tauri/target/release/bundle/dmg/*.dmg
+  #           src-tauri/target/release/bundle/macos/*.app
+  #           src-tauri/target/release/priskapdf
+  #         if-no-files-found: warn
+
+  build-windows-amd64:
+    name: Build Windows AMD64
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Cache Rust dependencies (Windows)
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          shared-key: windows-amd64
+
+      - name: Cache pnpm dependencies (Windows)
+        uses: actions/cache@v5
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies (Windows)
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache PDFium library (Windows AMD64)
+        id: cache-pdfium-windows
+        uses: actions/cache@v5
+        with:
+          path: src-tauri/pdfium.dll
+          key: pdfium-win-x64-chromium-7643
+
+      - name: Download PDFium library (Windows AMD64)
+        if: steps.cache-pdfium-windows.outputs.cache-hit != 'true'
+        run: |
+          curl -L -o pdfium-win-x64.tgz "https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-win-x64.tgz"
+          mkdir pdfium-win-x64
+          tar -xzf pdfium-win-x64.tgz -C pdfium-win-x64
+          cp pdfium-win-x64/bin/pdfium.dll src-tauri/
+          Remove-Item -Recurse -Force pdfium-win-x64, pdfium-win-x64.tgz
+        shell: pwsh
+
+      - name: Build Tauri app (Windows AMD64)
+        run: pnpm run tauri build
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+
+      - name: Create Windows portable zip
+        run: |
+          mkdir portable
+          cp src-tauri/target/release/priskapdf.exe portable/
+          cp src-tauri/pdfium.dll portable/
+          Compress-Archive -Path portable/* -DestinationPath priskapdf-windows-amd64.zip
+        shell: pwsh
+
+      - name: Upload Windows AMD64 artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: windows-amd64
+          path: priskapdf-windows-amd64.zip
+          if-no-files-found: warn
+
+  build-linux-x64:
+    name: Build Linux x86_64
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Cache Rust dependencies (Linux)
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          shared-key: linux-x64
+
+      - name: Cache pnpm dependencies (Linux)
+        uses: actions/cache@v5
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies (Linux)
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache PDFium library (Linux x64)
+        id: cache-pdfium-linux
+        uses: actions/cache@v5
+        with:
+          path: src-tauri/libpdfium.so
+          key: pdfium-linux-x64-chromium-7643
+
+      - name: Download PDFium library (Linux x64)
+        if: steps.cache-pdfium-linux.outputs.cache-hit != 'true'
+        run: |
+          curl -L -o pdfium-linux-x64.tgz "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7643/pdfium-linux-x64.tgz"
+          mkdir pdfium-linux-x64
+          tar -xzf pdfium-linux-x64.tgz -C pdfium-linux-x64
+          cp pdfium-linux-x64/lib/libpdfium.so src-tauri/
+          rm -rf pdfium-linux-x64 pdfium-linux-x64.tgz
+
+      - name: Build Tauri app (Linux x64)
+        run: pnpm run tauri build
+
+      - name: Create Linux AppImage
+        run: |
+          # Create a simple tar archive for now (AppImage would require more setup)
+          mkdir -p linux-package
+          cp src-tauri/target/release/priskapdf linux-package/
+          cp src-tauri/libpdfium.so linux-package/
+          tar -czf priskapdf-linux-x64.tar.gz -C linux-package .
+
+      - name: Upload Linux x64 artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: linux-x64
+          path: priskapdf-linux-x64.tar.gz
+          if-no-files-found: warn

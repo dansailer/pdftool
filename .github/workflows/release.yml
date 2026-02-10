@@ -1,0 +1,148 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+  packages: write
+  attestations: write
+  id-token: write
+
+jobs:
+  update-version:
+    name: Update Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get version from tag
+        id: get-version
+        run: |
+          # Extract version from tag (remove 'v' prefix if present)
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          VERSION="${TAG_NAME#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION from tag: $TAG_NAME"
+
+      - name: Update version in Cargo.toml
+        run: |
+          VERSION="${{ steps.get-version.outputs.version }}"
+          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" src-tauri/Cargo.toml
+          echo "Updated Cargo.toml version to $VERSION"
+
+      - name: Update version in tauri.conf.json
+        run: |
+          VERSION="${{ steps.get-version.outputs.version }}"
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" src-tauri/tauri.conf.json
+          echo "Updated tauri.conf.json version to $VERSION"
+
+      - name: Commit version updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add src-tauri/Cargo.toml src-tauri/tauri.conf.json
+          git commit -m "chore: bump version to ${{ steps.get-version.outputs.version }}" || echo "No changes to commit"
+          git push
+
+  build-artifacts:
+    name: Build Release Artifacts
+    needs: update-version
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+
+  create-release:
+    name: Create GitHub Release
+    needs: [update-version, build-artifacts]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Prepare release assets
+        id: prepare-assets
+        run: |
+          VERSION="${{ needs.update-version.outputs.version }}"
+          echo "Preparing release assets for version $VERSION"
+
+          # Create a directory for the release
+          mkdir -p release
+
+          # Copy artifacts from each platform directory
+          if [ -d "./artifacts/macos-arm64" ]; then
+            cp ./artifacts/macos-arm64/* release/ 2>/dev/null || true
+          fi
+
+          if [ -d "./artifacts/windows-amd64" ]; then
+            cp ./artifacts/windows-amd64/* release/ 2>/dev/null || true
+          fi
+
+          # List all files in release directory
+          echo "Release artifacts:"
+          ls -la release/ || echo "No artifacts found"
+
+          # Check if we have any artifacts
+          if [ "$(ls -A release/ 2>/dev/null)" ]; then
+            echo "has_artifacts=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_artifacts=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: steps.prepare-assets.outputs.has_artifacts == 'true'
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          name: "PriskaPDF ${{ needs.update-version.outputs.version }}"
+          body: |
+            ## What's New
+
+            ${{ github.event.release.body }}
+
+            ## Downloads
+
+            This release includes binaries for:
+            - macOS (ARM64)
+            - Windows (AMD64)
+
+            Download the appropriate file for your platform from the assets below.
+          files: release/*
+          draft: false
+          prerelease: ${{ contains(github.event.release.tag_name, 'beta') || contains(github.event.release.tag_name, 'alpha') || contains(github.event.release.tag_name, 'rc') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release (No Artifacts)
+        uses: softprops/action-gh-release@v2
+        if: steps.prepare-assets.outputs.has_artifacts != 'true'
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          name: "PriskaPDF ${{ needs.update-version.outputs.version }}"
+          body: |
+            ## What's New
+
+            ${{ github.event.release.body }}
+
+            ## Downloads
+
+            Build artifacts are being prepared. Please check back in a few minutes for downloadable binaries.
+
+            This release will include binaries for:
+            - macOS (ARM64)
+            - Windows (AMD64)
+          draft: false
+          prerelease: ${{ contains(github.event.release.tag_name, 'beta') || contains(github.event.release.tag_name, 'alpha') || contains(github.event.release.tag_name, 'rc') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

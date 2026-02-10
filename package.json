@@ -1,0 +1,29 @@
+{
+  "name": "pdftool",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@razein97/tauri-plugin-i18n": "^2.0.1",
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-dialog": "^2.6.0",
+    "@tauri-apps/plugin-fs": "^2.4.5",
+    "@tauri-apps/plugin-log": "^2.8.0",
+    "@tauri-apps/plugin-opener": "^2",
+    "@tauri-apps/plugin-updater": "^2",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "4.10.38"
+  },
+  "pdfjs-dist-note": "IMPORTANT: Do NOT upgrade to pdfjs-dist v5.x! Version 5.x has a breaking bug where the PagesMapper class uses static/global state shared across all PDF documents. When loading multiple PDFs, the global pagesNumber gets overwritten by the last loaded document, causing 'Invalid page request' errors when accessing pages from other documents. The fix requires pdf.js maintainers to make PagesMapper instance-based rather than static. Check if this is fixed before upgrading: https://github.com/nicokoenig/nicokoenig/pdf.js",
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.3"
+  }
+}
