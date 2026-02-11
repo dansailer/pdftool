@@ -1,5 +1,6 @@
 name: Release
 
+# Only triggers on release publish - cannot be triggered by PRs or forks
 on:
   release:
     types: [published]
