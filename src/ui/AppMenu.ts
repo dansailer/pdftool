@@ -9,6 +9,7 @@ import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { themeManager } from "../utils/ThemeManager";
 import { i18nManager, Locale } from "../utils/I18nManager";
 import { aboutDialog } from "./AboutDialog";
+import { updateManager } from "../utils/UpdateManager";
 
 export interface MenuActions {
   onOpen: () => void;
@@ -21,6 +22,7 @@ export interface MenuActions {
 // Store menu item references for dynamic updates
 let appSubmenu: Submenu;
 let aboutMenuItem: MenuItem;
+let checkForUpdatesMenuItem: MenuItem;
 let fileSubmenu: Submenu;
 let openMenuItem: MenuItem;
 let closeMenuItem: MenuItem;
@@ -82,12 +84,21 @@ export async function setupAppMenu(actions: MenuActions): Promise<Menu> {
     },
   });
 
+  checkForUpdatesMenuItem = await MenuItem.new({
+    id: "check-for-updates",
+    text: t("menu.check_for_updates"),
+    action: async () => {
+      await updateManager.checkForUpdate(false);
+    },
+  });
+
   // Application menu (first menu on macOS - shows as app name)
   appSubmenu = await Submenu.new({
     id: "app",
     text: t("app.name"),
     items: [
       aboutMenuItem,
+      checkForUpdatesMenuItem,
       await PredefinedMenuItem.new({ item: "Separator" }),
       languageSubmenu,
       themeMenuItem,
@@ -226,6 +237,7 @@ async function updateAllMenuTexts(): Promise<void> {
 
   // Update menu items
   await aboutMenuItem.setText(t("about.title"));
+  await checkForUpdatesMenuItem.setText(t("menu.check_for_updates"));
   await openMenuItem.setText(t("menu.open"));
   await closeMenuItem.setText(t("menu.close"));
   await saveAsMenuItem.setText(t("menu.save_as"));

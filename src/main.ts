@@ -15,6 +15,7 @@ import { setupAppMenu } from "./ui/AppMenu";
 import { aboutDialog } from "./ui/AboutDialog";
 import { metadataDialog } from "./ui/MetadataDialog";
 import { i18nManager } from "./utils/I18nManager";
+import { updateManager } from "./utils/UpdateManager";
 import { PdfMerger } from "./manipulation/PdfMerger";
 import { attachConsoleToTauriLog } from "./utils/Logger";
 import { toast } from "./utils/Toast";
@@ -70,6 +71,9 @@ class App {
     this.setupThumbnailNavigation();
     this.setupKeyboardShortcuts();
     this.keyboard.start();
+
+    // Check for updates silently on startup
+    updateManager.checkOnStartup();
   }
 
   private async setupCloseHandler(): Promise<void> {

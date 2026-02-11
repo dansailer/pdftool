@@ -308,7 +308,7 @@ The following decisions were made during planning:
    - Thumbnails only render when visible in viewport
    - Placeholder sizing for smooth scrolling before render
 
-4. **Auto-update functionality** 🔲
+4. **Auto-update functionality** ✅
    - Using `tauri-plugin-updater` with GitHub Releases
    - Plain portable binaries (no NSIS/MSI installers) using `uploadPlainBinary`
    - Signed updates with public/private key pair
@@ -413,9 +413,35 @@ tauri-plugin-fs = "2"
 tauri-plugin-i18n = "2"
 tauri-plugin-opener = "2"
 tauri-plugin-log = "2"
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
 lopdf = "0.39"
 base64 = "0.22"
 ```
+
+---
+
+## Auto-Update Setup
+
+To enable auto-updates in production, you need to:
+
+1. **Generate signing keys** (already done locally):
+   ```bash
+   pnpm tauri signer generate -w .tauri/keys/priska-pdf-tool.key --ci
+   ```
+
+2. **Add secrets to GitHub repository**:
+   - Go to: Settings → Secrets and variables → Actions
+   - Add `TAURI_SIGNING_PRIVATE_KEY`: Copy the contents of `.tauri/keys/priska-pdf-tool.key`
+   - Add `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`: Set to `NONE` if no password (GitHub doesn't allow empty secrets), or your actual password
+
+3. **Public key location**:
+   - The public key is stored in `tauri.conf.json` under `plugins.updater.pubkey`
+   - This is committed to the repository and used to verify signed updates
+
+4. **Update endpoint**:
+   - Updates are fetched from: `https://github.com/dansailer/pdftool/releases/latest/download/latest.json`
+   - The `latest.json` file is automatically generated during the release workflow
 
 ---
 

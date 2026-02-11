@@ -22,7 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
+test/*
 # Tauri signing keys (keep private key SECRET!)
 .tauri/keys/*.key
 !.tauri/keys/*.key.pub
