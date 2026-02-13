@@ -56,7 +56,7 @@ jobs:
   build-artifacts:
     name: Build Release Artifacts
     needs: update-version
-    uses: ./.github/workflows/build.yml
+    uses: ./.github/workflows/build.yml@${{ github.ref }}
     secrets: inherit
 
   create-release:

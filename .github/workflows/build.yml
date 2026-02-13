@@ -7,77 +7,67 @@ on:
   workflow_dispatch:
 
 jobs:
-  # build-macos-arm:
-  #   name: Build macOS ARM64
-  #   runs-on: macos-latest
-  #   # Only run for releases, workflow_call, or if manually triggered by owner
-  #   if: github.event_name != 'workflow_dispatch' || github.actor == 'dansailer'
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v4
+  build-macos-arm:
+    name: Build macOS ARM64
+    runs-on: macos-latest
+    # Only run for releases, workflow_call, or if manually triggered by owner
+    if: github.event_name != 'workflow_dispatch' || github.actor == 'dansailer'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: '20'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-  #     - name: Setup pnpm
-  #       uses: pnpm/action-setup@v4
-  #       with:
-  #         version: 9
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
 
-  #     - name: Setup Rust
-  #       uses: dtolnay/rust-toolchain@stable
-  #       with:
-  #         targets: aarch64-apple-darwin
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
 
-  #     - name: Cache Rust dependencies (macOS)
-  #       uses: Swatinem/rust-cache@v2
-  #       with:
-  #         workspaces: src-tauri
-  #         shared-key: macos-arm64
+      - name: Cache Rust dependencies (macOS)
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          shared-key: macos-arm64
 
-  #     - name: Cache pnpm dependencies (macOS)
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: ~/.pnpm-store
-  #         key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-pnpm-
+      - name: Cache pnpm dependencies (macOS)
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
-  #     - name: Install dependencies (macOS)
-  #       run: pnpm install --frozen-lockfile
+      - name: Install dependencies (macOS)
+        run: pnpm install --frozen-lockfile
 
-  #     - name: Cache PDFium library (macOS ARM64)
-  #       id: cache-pdfium-macos
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: src-tauri/libpdfium.dylib
-  #         key: pdfium-mac-arm64-chromium-7643
+      - name: Build Tauri app (macOS ARM64)
+        run: |
+          if [ "${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}" = "NONE" ]; then
+            export TAURI_SIGNING_PRIVATE_KEY="${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
+            # No password set - Tauri will use key without password
+          else
+            export TAURI_SIGNING_PRIVATE_KEY="${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
+            export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}"
+          fi
+          pnpm run tauri build
 
-  #     - name: Download PDFium library (macOS ARM64)
-  #       if: steps.cache-pdfium-macos.outputs.cache-hit != 'true'
-  #       run: |
-  #         curl -L -o pdfium-mac-arm64.tgz "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7643/pdfium-mac-arm64.tgz"
-  #         mkdir -p pdfium-mac-arm64 && tar -xzf pdfium-mac-arm64.tgz -C pdfium-mac-arm64
-  #         cp pdfium-mac-arm64/lib/libpdfium.dylib src-tauri/
-  #         rm -rf pdfium-mac-arm64 pdfium-mac-arm64.tgz
-
-  #     - name: Build Tauri app (macOS ARM64)
-  #       run: pnpm run tauri build
-  #       env:
-  #         TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-  #         TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-
-  #     - name: Upload macOS ARM64 artifacts
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: macos-arm64
-  #         path: |
-  #           src-tauri/target/release/bundle/dmg/*.dmg
-  #           src-tauri/target/release/bundle/macos/*.app
-  #           src-tauri/target/release/pdftool
-  #         if-no-files-found: warn
+      - name: Upload macOS ARM64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm64
+          path: |
+            src-tauri/target/release/bundle/dmg/*.dmg
+            src-tauri/target/release/bundle/macos/*.app
+            src-tauri/target/release/pdftool
+          if-no-files-found: warn
 
   build-windows-amd64:
     name: Build Windows AMD64
@@ -120,35 +110,21 @@ jobs:
       - name: Install dependencies (Windows)
         run: pnpm install --frozen-lockfile
 
-      - name: Cache PDFium library (Windows AMD64)
-        id: cache-pdfium-windows
-        uses: actions/cache@v5
-        with:
-          path: src-tauri/pdfium.dll
-          key: pdfium-win-x64-chromium-7643
-
-      - name: Download PDFium library (Windows AMD64)
-        if: steps.cache-pdfium-windows.outputs.cache-hit != 'true'
-        run: |
-          curl -L -o pdfium-win-x64.tgz "https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-win-x64.tgz"
-          mkdir pdfium-win-x64
-          tar -xzf pdfium-win-x64.tgz -C pdfium-win-x64
-          cp pdfium-win-x64/bin/pdfium.dll src-tauri/
-          Remove-Item -Recurse -Force pdfium-win-x64, pdfium-win-x64.tgz
-        shell: pwsh
-
       - name: Build Tauri app (Windows AMD64)
-        run: pnpm run tauri build
-        env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD == 'NONE' && '' || secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          if ("${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}" -eq "NONE") {
+            $env:TAURI_SIGNING_PRIVATE_KEY = "${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
+            # No password set - Tauri will use key without password
+          } else {
+            $env:TAURI_SIGNING_PRIVATE_KEY = "${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
+            $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = "${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}"
+          }
+          pnpm run tauri build
+        shell: pwsh
 
       - name: Create Windows portable zip
         run: |
-          mkdir portable
-          cp src-tauri/target/release/pdftool.exe portable/
-          cp src-tauri/pdfium.dll portable/
-          Compress-Archive -Path portable/* -DestinationPath pdftool-windows-amd64.zip
+          Compress-Archive -Path src-tauri/target/release/pdftool.exe -DestinationPath pdftool-windows.zip
         shell: pwsh
 
       - name: Upload Windows AMD64 artifacts
@@ -156,7 +132,7 @@ jobs:
         with:
           name: windows-amd64
           path: |
-            pdftool-windows-amd64.zip
+            pdftool-windows.zip
             src-tauri/target/release/bundle/nsis/*.exe
             src-tauri/target/release/bundle/nsis/*.sig
           if-no-files-found: warn
@@ -207,35 +183,22 @@ jobs:
       - name: Install dependencies (Linux)
         run: pnpm install --frozen-lockfile
 
-      - name: Cache PDFium library (Linux x64)
-        id: cache-pdfium-linux
-        uses: actions/cache@v5
-        with:
-          path: src-tauri/libpdfium.so
-          key: pdfium-linux-x64-chromium-7643
-
-      - name: Download PDFium library (Linux x64)
-        if: steps.cache-pdfium-linux.outputs.cache-hit != 'true'
-        run: |
-          curl -L -o pdfium-linux-x64.tgz "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7643/pdfium-linux-x64.tgz"
-          mkdir pdfium-linux-x64
-          tar -xzf pdfium-linux-x64.tgz -C pdfium-linux-x64
-          cp pdfium-linux-x64/lib/libpdfium.so src-tauri/
-          rm -rf pdfium-linux-x64 pdfium-linux-x64.tgz
-
       - name: Build Tauri app (Linux x64)
-        run: pnpm run tauri build
-        env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD == 'NONE' && '' || secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          if [ "${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}" = "NONE" ]; then
+            export TAURI_SIGNING_PRIVATE_KEY="${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
+            # No password set - Tauri will use key without password
+          else
+            export TAURI_SIGNING_PRIVATE_KEY="${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
+            export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}"
+          fi
+          pnpm run tauri build
 
       - name: Create Linux AppImage
         run: |
           # Create a simple tar archive for now (AppImage would require more setup)
-          mkdir -p linux-package
           cp src-tauri/target/release/pdftool linux-package/
-          cp src-tauri/libpdfium.so linux-package/
-          tar -czf pdftool-linux-x64.tar.gz -C linux-package .
+          tar -czf pdftool-linux-x64.tar.gz src-tauri/target/release/pdftool
 
       - name: Upload Linux x64 artifacts
         uses: actions/upload-artifact@v6
