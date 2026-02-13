@@ -230,7 +230,10 @@ update.up_to_date_message:
   de: Sie verwenden die neueste Version.
 update.check_failed:
   en: Update Check Failed
-  de: Update-Prüfung fehlgeschlagen
+  de: Update fehlgeschlagen
+update.check_failed_message:
+  en: Could not fetch release information for updates. Please try again later.
+  de: Informationen zum Update konnten nicht abgerufen werden. Bitte versuchen Sie es später erneut.
 update.downloading:
   en: Downloading Update
   de: Update wird heruntergeladen
@@ -258,3 +261,6 @@ update.restart_to_apply:
 update.install_failed:
   en: Installation Failed
   de: Installation fehlgeschlagen
+update.install_failed_message:
+  en: Could not install the update. Please try again later.
+  de: Das Update konnte nicht installiert werden. Bitte versuchen Sie es später erneut.

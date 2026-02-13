@@ -75,7 +75,7 @@ class UpdateManager {
     } catch (error) {
       console.error("Update check failed:", error);
       if (!silent) {
-        toast.error(t("update.check_failed"), String(error));
+        toast.error(t("update.check_failed"), t("update.check_failed_message"));
       }
     } finally {
       this.isChecking = false;
@@ -153,7 +153,7 @@ class UpdateManager {
       }
     } catch (error) {
       console.error("Update installation failed:", error);
-      toast.error(t("update.install_failed"), String(error));
+      toast.error(t("update.install_failed"), t("update.install_failed_message"));
     }
   }
 
