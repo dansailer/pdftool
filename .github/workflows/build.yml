@@ -10,6 +10,8 @@ jobs:
   # build-macos-arm:
   #   name: Build macOS ARM64
   #   runs-on: macos-latest
+  #   # Only run for releases, workflow_call, or if manually triggered by owner
+  #   if: github.event_name != 'workflow_dispatch' || github.actor == 'dansailer'
   #   steps:
   #     - name: Checkout repository
   #       uses: actions/checkout@v4
@@ -80,6 +82,8 @@ jobs:
   build-windows-amd64:
     name: Build Windows AMD64
     runs-on: windows-latest
+    # Only run for releases, workflow_call, or if manually triggered by owner
+    if: github.event_name != 'workflow_dispatch' || github.actor == 'dansailer'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -160,6 +164,8 @@ jobs:
   build-linux-x64:
     name: Build Linux x86_64
     runs-on: ubuntu-24.04
+    # Only run for releases, workflow_call, or if manually triggered by owner
+    if: github.event_name != 'workflow_dispatch' || github.actor == 'dansailer'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6

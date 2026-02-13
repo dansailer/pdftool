@@ -24,7 +24,7 @@
   "pdfjs-dist-note": "IMPORTANT: Do NOT upgrade to pdfjs-dist v5.x! Version 5.x has a breaking bug where the PagesMapper class uses static/global state shared across all PDF documents. When loading multiple PDFs, the global pagesNumber gets overwritten by the last loaded document, causing 'Invalid page request' errors when accessing pages from other documents. The fix requires pdf.js maintainers to make PagesMapper instance-based rather than static. Check if this is fixed before upgrading: https://github.com/nicokoenig/nicokoenig/pdf.js",
   "devDependencies": {
     "@tauri-apps/cli": "^2",
-    "typescript": "~5.6.2",
+    "typescript": "~5.9.3",
     "vite": "^7.3.1"
   }
 }
