@@ -60,7 +60,7 @@ jobs:
           pnpm run tauri build
 
       - name: Upload macOS ARM64 artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: macos-arm64
           path: |
