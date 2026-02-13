@@ -38,7 +38,7 @@ jobs:
           shared-key: macos-arm64
 
       - name: Cache pnpm dependencies (macOS)
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.pnpm-store
           key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
