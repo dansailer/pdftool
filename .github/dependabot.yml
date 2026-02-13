@@ -9,6 +9,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      - dependency-name: "pdfjs-dist"
+        update-types: ["version-update:semver-major"]
+        versions: ["5.x"]
   - package-ecosystem: "cargo"
     directory: "/src-tauri"
     schedule:
