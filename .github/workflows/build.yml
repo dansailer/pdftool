@@ -179,11 +179,11 @@ jobs:
           export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}"
           pnpm run tauri build
 
-      - name: Create Linux AppImage
+      - name: Create Linux portable archive
         run: |
-          # Create a simple tar archive for now (AppImage would require more setup)
+          mkdir -p linux-package
           cp src-tauri/target/release/pdftool linux-package/
-          tar -czf pdftool-linux-x64.tar.gz src-tauri/target/release/pdftool
+          tar -czf pdftool-linux-x64.tar.gz -C linux-package .
 
       - name: Upload Linux x64 artifacts
         uses: actions/upload-artifact@v6
