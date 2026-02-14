@@ -51,6 +51,7 @@ jobs:
   #     - name: Build Tauri app (macOS ARM64)
   #       run: |
   #         export TAURI_SIGNING_PRIVATE_KEY="${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
+  #         export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}"
   #         pnpm run tauri build
 
   #     - name: Upload macOS ARM64 artifacts
@@ -107,6 +108,7 @@ jobs:
   #     - name: Build Tauri app (Windows AMD64)
   #       run: |
   #         $env:TAURI_SIGNING_PRIVATE_KEY = "${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
+  #         $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = "${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}"
   #         pnpm run tauri build
   #       shell: pwsh
 
@@ -174,6 +176,7 @@ jobs:
       - name: Build Tauri app (Linux x64)
         run: |
           export TAURI_SIGNING_PRIVATE_KEY="${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
+          export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}"
           pnpm run tauri build
 
       - name: Create Linux AppImage

@@ -48,7 +48,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEFFMUQyRTI4RkMyQ0IwOUYKUldTZnNDejhLQzRkcnUwVGFyaHRlNndXQkxRdXkraTJERzdQTGpKM1gwR0k3WHAyQjcwNFl3bmgK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDIyOEU2OUJFNjdEN0RFN0YKUldSLzN0ZG52bW1PSXNmdWo1cXM4MTFTSTc5c2FReDVkZERkTGpUNFpweWNCN1dOSzVrVjFRZmcK",
       "endpoints": [
         "https://github.com/dansailer/pdftool/releases/latest/download/latest.json"
       ]
