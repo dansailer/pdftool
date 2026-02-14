@@ -23,6 +23,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
 
       - name: Get version from tag
         id: get-version
@@ -45,13 +46,19 @@ jobs:
           sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" src-tauri/tauri.conf.json
           echo "Updated tauri.conf.json version to $VERSION"
 
+      - name: Update version in package.json
+        run: |
+          VERSION="${{ steps.get-version.outputs.version }}"
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
+          echo "Updated package.json version to $VERSION"
+
       - name: Commit version updates
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add src-tauri/Cargo.toml src-tauri/tauri.conf.json
+          git add src-tauri/Cargo.toml src-tauri/tauri.conf.json package.json
           git commit -m "chore: bump version to ${{ steps.get-version.outputs.version }}" || echo "No changes to commit"
-          git push
+          git push origin main
 
   build-artifacts:
     name: Build Release Artifacts
