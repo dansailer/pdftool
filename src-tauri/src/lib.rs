@@ -1,5 +1,7 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 
+use std::time::Duration;
+
 mod pdf_merger;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -9,7 +11,14 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_i18n::init(None))
-        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(
+            tauri_plugin_updater::Builder::new()
+                // Increase timeout to 60 seconds for slow connections
+                .timeout(Duration::from_secs(60))
+                // Disable proxy to avoid Windows proxy detection hanging
+                .no_proxy()
+                .build(),
+        )
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_os::init())
         .plugin(
