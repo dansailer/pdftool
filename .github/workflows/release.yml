@@ -41,10 +41,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
           path: ./artifacts
 
@@ -57,7 +57,11 @@ jobs:
           # Create a directory for the release
           mkdir -p release
 
-          # Copy artifacts from each platform directory
+          # Debug: List what we downloaded
+          echo "=== Downloaded artifacts structure ==="
+          find ./artifacts -type f -ls 2>/dev/null || true
+
+          # Copy artifacts from each platform directory (now they're flat)
           if [ -d "./artifacts/macos-arm64" ]; then
             cp ./artifacts/macos-arm64/* release/ 2>/dev/null || true
           fi
@@ -71,7 +75,7 @@ jobs:
           fi
 
           # List all files in release directory
-          echo "Release artifacts:"
+          echo "=== Release artifacts ==="
           ls -la release/ || echo "No artifacts found"
 
           # Check if we have any artifacts
@@ -96,58 +100,53 @@ jobs:
           echo "=== Listing release directory ==="
           ls -la release/
           
-          # Check for Windows NSIS installer and signature (Tauri 2 with createUpdaterArtifacts: true)
-          # The format is: myapp_version_x64-setup.exe and myapp_version_x64-setup.exe.sig
-          if ls release/*-setup.exe 1>/dev/null 2>&1; then
-            WINDOWS_EXE=$(ls release/*-setup.exe | head -1 | xargs basename)
-            echo "Found Windows NSIS exe: $WINDOWS_EXE"
-            if [ -f "release/${WINDOWS_EXE}.sig" ]; then
-              WINDOWS_SIG=$(cat "release/${WINDOWS_EXE}.sig")
+          # Check for Windows NSIS installer and signature
+          # Use find to handle spaces in filenames
+          WINDOWS_EXE=$(find release -maxdepth 1 -name "*-setup.exe" -type f | head -1)
+          if [ -n "$WINDOWS_EXE" ]; then
+            WINDOWS_BASENAME=$(basename "$WINDOWS_EXE")
+            echo "Found Windows NSIS exe: $WINDOWS_BASENAME"
+            if [ -f "${WINDOWS_EXE}.sig" ]; then
+              WINDOWS_SIG=$(cat "${WINDOWS_EXE}.sig")
               echo "Found Windows signature"
-              PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "${BASE_URL}/${WINDOWS_EXE}" --arg sig "$WINDOWS_SIG" \
+              # URL encode spaces as %20
+              WINDOWS_URL_ENCODED=$(echo "$WINDOWS_BASENAME" | sed 's/ /%20/g')
+              PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "${BASE_URL}/${WINDOWS_URL_ENCODED}" --arg sig "$WINDOWS_SIG" \
                 '. + {"windows-x86_64": {"signature": $sig, "url": $url}}')
             else
-              echo "Warning: No signature file found for $WINDOWS_EXE"
-            fi
-          # Fallback: Check for NSIS zip format (v1Compatible mode)
-          elif ls release/*.nsis.zip 1>/dev/null 2>&1; then
-            WINDOWS_ZIP=$(ls release/*.nsis.zip | head -1 | xargs basename)
-            echo "Found Windows NSIS zip: $WINDOWS_ZIP"
-            if [ -f "release/${WINDOWS_ZIP}.sig" ]; then
-              WINDOWS_SIG=$(cat "release/${WINDOWS_ZIP}.sig")
-              echo "Found Windows signature"
-              PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "${BASE_URL}/${WINDOWS_ZIP}" --arg sig "$WINDOWS_SIG" \
-                '. + {"windows-x86_64": {"signature": $sig, "url": $url}}')
-            else
-              echo "Warning: No signature file found for $WINDOWS_ZIP"
+              echo "Warning: No signature file found for $WINDOWS_BASENAME"
             fi
           fi
           
           # Check for Linux AppImage and signature
-          if ls release/*.AppImage 1>/dev/null 2>&1; then
-            LINUX_APPIMAGE=$(ls release/*.AppImage | head -1 | xargs basename)
-            echo "Found Linux AppImage: $LINUX_APPIMAGE"
-            if [ -f "release/${LINUX_APPIMAGE}.sig" ]; then
-              LINUX_SIG=$(cat "release/${LINUX_APPIMAGE}.sig")
+          LINUX_APPIMAGE=$(find release -maxdepth 1 -name "*.AppImage" -type f | head -1)
+          if [ -n "$LINUX_APPIMAGE" ]; then
+            LINUX_BASENAME=$(basename "$LINUX_APPIMAGE")
+            echo "Found Linux AppImage: $LINUX_BASENAME"
+            if [ -f "${LINUX_APPIMAGE}.sig" ]; then
+              LINUX_SIG=$(cat "${LINUX_APPIMAGE}.sig")
               echo "Found Linux signature"
-              PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "${BASE_URL}/${LINUX_APPIMAGE}" --arg sig "$LINUX_SIG" \
+              LINUX_URL_ENCODED=$(echo "$LINUX_BASENAME" | sed 's/ /%20/g')
+              PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "${BASE_URL}/${LINUX_URL_ENCODED}" --arg sig "$LINUX_SIG" \
                 '. + {"linux-x86_64": {"signature": $sig, "url": $url}}')
             else
-              echo "Warning: No signature file found for $LINUX_APPIMAGE"
+              echo "Warning: No signature file found for $LINUX_BASENAME"
             fi
           fi
           
           # Check for macOS app and signature
-          if ls release/*.app.tar.gz 1>/dev/null 2>&1; then
-            MACOS_APP=$(ls release/*.app.tar.gz | head -1 | xargs basename)
-            echo "Found macOS app: $MACOS_APP"
-            if [ -f "release/${MACOS_APP}.sig" ]; then
-              MACOS_SIG=$(cat "release/${MACOS_APP}.sig")
+          MACOS_APP=$(find release -maxdepth 1 -name "*.app.tar.gz" -type f | head -1)
+          if [ -n "$MACOS_APP" ]; then
+            MACOS_BASENAME=$(basename "$MACOS_APP")
+            echo "Found macOS app: $MACOS_BASENAME"
+            if [ -f "${MACOS_APP}.sig" ]; then
+              MACOS_SIG=$(cat "${MACOS_APP}.sig")
               echo "Found macOS signature"
-              PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "${BASE_URL}/${MACOS_APP}" --arg sig "$MACOS_SIG" \
+              MACOS_URL_ENCODED=$(echo "$MACOS_BASENAME" | sed 's/ /%20/g')
+              PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "${BASE_URL}/${MACOS_URL_ENCODED}" --arg sig "$MACOS_SIG" \
                 '. + {"darwin-aarch64": {"signature": $sig, "url": $url}}')
             else
-              echo "Warning: No signature file found for $MACOS_APP"
+              echo "Warning: No signature file found for $MACOS_BASENAME"
             fi
           fi
           

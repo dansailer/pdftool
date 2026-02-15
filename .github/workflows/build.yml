@@ -79,14 +79,21 @@ jobs:
           echo "=== Looking for .app.tar.gz and .sig files ==="
           find src-tauri/target -name "*.app.tar.gz*" 2>/dev/null || echo "No .app.tar.gz found"
 
+      - name: Prepare macOS artifacts
+        run: |
+          mkdir -p artifacts
+          # Copy DMG if it exists
+          find src-tauri/target/release/bundle/dmg -name "*.dmg" -exec cp {} artifacts/ \; 2>/dev/null || true
+          # Copy .app.tar.gz and signature (handling spaces in filenames)
+          find src-tauri/target/release/bundle/macos -name "*.app.tar.gz" -exec cp {} artifacts/ \; 2>/dev/null || true
+          find src-tauri/target/release/bundle/macos -name "*.app.tar.gz.sig" -exec cp {} artifacts/ \; 2>/dev/null || true
+          ls -la artifacts/
+
       - name: Upload macOS ARM64 artifacts
         uses: actions/upload-artifact@v4
         with:
           name: macos-arm64
-          path: |
-            src-tauri/target/release/bundle/dmg/*.dmg
-            src-tauri/target/release/bundle/macos/*.app.tar.gz
-            src-tauri/target/release/bundle/macos/*.app.tar.gz.sig
+          path: artifacts/*
           if-no-files-found: warn
 
   build-windows-amd64:
@@ -96,7 +103,7 @@ jobs:
     if: github.event_name != 'workflow_dispatch' || github.actor == 'dansailer'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Update version in config files
         if: inputs.version != ''
@@ -110,7 +117,7 @@ jobs:
         shell: pwsh
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
 
@@ -131,7 +138,7 @@ jobs:
           shared-key: windows-amd64
 
       - name: Cache pnpm dependencies (Windows)
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: ~/.pnpm-store
           key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
@@ -161,14 +168,27 @@ jobs:
           Compress-Archive -Path src-tauri/target/release/pdftool.exe -DestinationPath pdftool-windows.zip
         shell: pwsh
 
+      - name: Prepare Windows artifacts
+        run: |
+          mkdir -p artifacts
+          cp pdftool-windows.zip artifacts/
+          # Copy NSIS installer and signature if they exist
+          $nsis = Get-ChildItem -Path "src-tauri/target/release/bundle/nsis" -Filter "*-setup.exe" -ErrorAction SilentlyContinue
+          foreach ($file in $nsis) {
+            Copy-Item $file.FullName -Destination "artifacts/"
+            $sigFile = "$($file.FullName).sig"
+            if (Test-Path $sigFile) {
+              Copy-Item $sigFile -Destination "artifacts/"
+            }
+          }
+          Get-ChildItem artifacts/
+        shell: pwsh
+
       - name: Upload Windows AMD64 artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: windows-amd64
-          path: |
-            pdftool-windows.zip
-            src-tauri/target/release/bundle/nsis/*.exe
-            src-tauri/target/release/bundle/nsis/*.exe.sig
+          path: artifacts/*
           if-no-files-found: warn
 
   build-linux-x64:
@@ -178,7 +198,7 @@ jobs:
     if: github.event_name != 'workflow_dispatch' || github.actor == 'dansailer'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Update version in config files
         if: inputs.version != ''
@@ -191,7 +211,7 @@ jobs:
           echo "Updated all config files to version $VERSION"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
 
@@ -217,7 +237,7 @@ jobs:
           shared-key: linux-x64
 
       - name: Cache pnpm dependencies (Linux)
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: ~/.pnpm-store
           key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
@@ -246,12 +266,18 @@ jobs:
           cp src-tauri/target/release/pdftool linux-package/
           tar -czf pdftool-linux-x64.tar.gz -C linux-package .
 
+      - name: Prepare Linux artifacts
+        run: |
+          mkdir -p artifacts
+          cp pdftool-linux-x64.tar.gz artifacts/
+          # Copy AppImage and signature if they exist (handling spaces in filenames)
+          find src-tauri/target/release/bundle/appimage -name "*.AppImage" -exec cp {} artifacts/ \; 2>/dev/null || true
+          find src-tauri/target/release/bundle/appimage -name "*.AppImage.sig" -exec cp {} artifacts/ \; 2>/dev/null || true
+          ls -la artifacts/
+
       - name: Upload Linux x64 artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: linux-x64
-          path: |
-            pdftool-linux-x64.tar.gz
-            src-tauri/target/release/bundle/appimage/*.AppImage
-            src-tauri/target/release/bundle/appimage/*.AppImage.sig
+          path: artifacts/*
           if-no-files-found: warn
