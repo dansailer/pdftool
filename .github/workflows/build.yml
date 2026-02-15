@@ -2,7 +2,17 @@ name: Build
 
 on:
   workflow_call:
+    inputs:
+      version:
+        description: 'Version to build (e.g., 1.0.0)'
+        required: false
+        type: string
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (optional, uses package.json version if not specified)'
+        required: false
+        type: string
 
 jobs:
   build-macos-arm:
@@ -13,6 +23,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Update version in config files
+        if: inputs.version != ''
+        run: |
+          VERSION="${{ inputs.version }}"
+          echo "Updating version to $VERSION"
+          sed -i '' "s/^version = \".*\"/version = \"$VERSION\"/" src-tauri/Cargo.toml
+          sed -i '' 's/"version": ".*"/"version": "'"$VERSION"'"/' src-tauri/tauri.conf.json
+          sed -i '' 's/"version": ".*"/"version": "'"$VERSION"'"/' package.json
+          echo "Updated all config files to version $VERSION"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -77,6 +97,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Update version in config files
+        if: inputs.version != ''
+        run: |
+          $VERSION = "${{ inputs.version }}"
+          Write-Host "Updating version to $VERSION"
+          (Get-Content src-tauri/Cargo.toml) -replace '^version = ".*"', "version = `"$VERSION`"" | Set-Content src-tauri/Cargo.toml
+          (Get-Content src-tauri/tauri.conf.json) -replace '"version": ".*"', "`"version`": `"$VERSION`"" | Set-Content src-tauri/tauri.conf.json
+          (Get-Content package.json) -replace '"version": ".*"', "`"version`": `"$VERSION`"" | Set-Content package.json
+          Write-Host "Updated all config files to version $VERSION"
+        shell: pwsh
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -148,6 +179,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Update version in config files
+        if: inputs.version != ''
+        run: |
+          VERSION="${{ inputs.version }}"
+          echo "Updating version to $VERSION"
+          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" src-tauri/Cargo.toml
+          sed -i 's/"version": ".*"/"version": "'"$VERSION"'"/' src-tauri/tauri.conf.json
+          sed -i 's/"version": ".*"/"version": "'"$VERSION"'"/' package.json
+          echo "Updated all config files to version $VERSION"
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
