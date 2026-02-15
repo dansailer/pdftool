@@ -55,7 +55,7 @@ class App {
     i18nManager.updateDOMTranslations();
 
     // Initialize UI components
-    aboutDialog.init();
+    await aboutDialog.init();
     metadataDialog.init();
 
     // Connect components to document manager
