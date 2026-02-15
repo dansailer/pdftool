@@ -78,7 +78,15 @@ class App {
 
   private async setupCloseHandler(): Promise<void> {
     const window = getCurrentWindow();
+    
+    // Listen for close request - handle unsaved changes prompt
     await window.onCloseRequested(async (event) => {
+      console.log("Close requested, isModified:", this.docManager.isModified);
+      
+      // Always prevent default - we'll handle the close ourselves
+      event.preventDefault();
+      
+      // If document is modified, ask user to confirm
       if (this.docManager.isModified) {
         const shouldClose = await ask(
           i18nManager.t("dialog.unsaved_changes"),
@@ -87,10 +95,16 @@ class App {
             kind: "warning",
           }
         );
+        
+        console.log("User response:", shouldClose);
+        
         if (!shouldClose) {
-          event.preventDefault();
+          return; // User cancelled, don't close
         }
       }
+      
+      // Close the window
+      await window.destroy();
     });
   }
 
