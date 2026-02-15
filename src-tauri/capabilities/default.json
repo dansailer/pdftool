@@ -16,6 +16,7 @@
     "log:default",
     "updater:default",
     "process:allow-restart",
-    "core:webview:allow-internal-toggle-devtools"
+    "core:webview:allow-internal-toggle-devtools",
+    "os:default"
   ]
 }

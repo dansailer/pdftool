@@ -6,6 +6,7 @@ import {
 } from "@tauri-apps/api/menu";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
+import { platform } from "@tauri-apps/plugin-os";
 import { themeManager } from "../utils/ThemeManager";
 import { i18nManager, Locale } from "../utils/I18nManager";
 import { aboutDialog } from "./AboutDialog";
@@ -19,8 +20,11 @@ export interface MenuActions {
   onRedo: () => void;
 }
 
+// Platform detection
+let isMacOS = false;
+
 // Store menu item references for dynamic updates
-let appSubmenu: Submenu;
+let appSubmenu: Submenu | null = null;
 let aboutMenuItem: MenuItem;
 let checkForUpdatesMenuItem: MenuItem;
 let fileSubmenu: Submenu;
@@ -40,6 +44,10 @@ let germanMenuItem: MenuItem;
 
 export async function setupAppMenu(actions: MenuActions): Promise<Menu> {
   const t = (key: string) => i18nManager.t(key);
+  
+  // Detect platform
+  const currentPlatform = await platform();
+  isMacOS = currentPlatform === "macos";
 
   // Language submenu items
   englishMenuItem = await MenuItem.new({
@@ -92,26 +100,28 @@ export async function setupAppMenu(actions: MenuActions): Promise<Menu> {
     },
   });
 
-  // Application menu (first menu on macOS - shows as app name)
-  appSubmenu = await Submenu.new({
-    id: "app",
-    text: t("app.name"),
-    items: [
-      aboutMenuItem,
-      checkForUpdatesMenuItem,
-      await PredefinedMenuItem.new({ item: "Separator" }),
-      languageSubmenu,
-      themeMenuItem,
-      await PredefinedMenuItem.new({ item: "Separator" }),
-      await PredefinedMenuItem.new({ item: "Services" }),
-      await PredefinedMenuItem.new({ item: "Separator" }),
-      await PredefinedMenuItem.new({ item: "Hide" }),
-      await PredefinedMenuItem.new({ item: "HideOthers" }),
-      await PredefinedMenuItem.new({ item: "ShowAll" }),
-      await PredefinedMenuItem.new({ item: "Separator" }),
-      await PredefinedMenuItem.new({ item: "Quit" }),
-    ],
-  });
+  // Application menu (macOS only - shows as app name)
+  if (isMacOS) {
+    appSubmenu = await Submenu.new({
+      id: "app",
+      text: t("app.name"),
+      items: [
+        aboutMenuItem,
+        checkForUpdatesMenuItem,
+        await PredefinedMenuItem.new({ item: "Separator" }),
+        languageSubmenu,
+        themeMenuItem,
+        await PredefinedMenuItem.new({ item: "Separator" }),
+        await PredefinedMenuItem.new({ item: "Services" }),
+        await PredefinedMenuItem.new({ item: "Separator" }),
+        await PredefinedMenuItem.new({ item: "Hide" }),
+        await PredefinedMenuItem.new({ item: "HideOthers" }),
+        await PredefinedMenuItem.new({ item: "ShowAll" }),
+        await PredefinedMenuItem.new({ item: "Separator" }),
+        await PredefinedMenuItem.new({ item: "Quit" }),
+      ],
+    });
+  }
 
   openMenuItem = await MenuItem.new({
     id: "open",
@@ -134,15 +144,32 @@ export async function setupAppMenu(actions: MenuActions): Promise<Menu> {
     action: actions.onSaveAs,
   });
 
+  // File menu - on non-macOS, includes About, Update, Language, Theme
+  const fileMenuItems = [
+    openMenuItem,
+    closeMenuItem,
+    await PredefinedMenuItem.new({ item: "Separator" }),
+    saveAsMenuItem,
+  ];
+
+  // On non-macOS platforms, add app-related items to File menu
+  if (!isMacOS) {
+    fileMenuItems.push(
+      await PredefinedMenuItem.new({ item: "Separator" }),
+      languageSubmenu,
+      themeMenuItem,
+      await PredefinedMenuItem.new({ item: "Separator" }),
+      checkForUpdatesMenuItem,
+      aboutMenuItem,
+      await PredefinedMenuItem.new({ item: "Separator" }),
+      await PredefinedMenuItem.new({ item: "Quit" }),
+    );
+  }
+
   fileSubmenu = await Submenu.new({
     id: "file",
     text: t("menu.file"),
-    items: [
-      openMenuItem,
-      closeMenuItem,
-      await PredefinedMenuItem.new({ item: "Separator" }),
-      saveAsMenuItem,
-    ],
+    items: fileMenuItems,
   });
 
   undoMenuItem = await MenuItem.new({
@@ -203,8 +230,13 @@ export async function setupAppMenu(actions: MenuActions): Promise<Menu> {
     ],
   });
 
+  // Build menu items array based on platform
+  const menuItems = isMacOS
+    ? [appSubmenu!, fileSubmenu, editSubmenu, viewSubmenu, windowSubmenu]
+    : [fileSubmenu, editSubmenu, viewSubmenu, windowSubmenu];
+
   const menu = await Menu.new({
-    items: [appSubmenu, fileSubmenu, editSubmenu, viewSubmenu, windowSubmenu],
+    items: menuItems,
   });
 
   await menu.setAsAppMenu();
