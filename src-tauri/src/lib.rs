@@ -15,8 +15,12 @@ pub fn run() {
             tauri_plugin_updater::Builder::new()
                 // Increase timeout to 60 seconds for slow connections
                 .timeout(Duration::from_secs(60))
-                // Disable proxy to avoid Windows proxy detection hanging
-                .no_proxy()
+                // Configure the HTTP client for better Windows compatibility
+                .configure_client(|client| {
+                    client
+                        // 15s connect timeout to fail fast if proxy detection hangs
+                        .connect_timeout(Duration::from_secs(15))
+                })
                 .build(),
         )
         .plugin(tauri_plugin_process::init())
