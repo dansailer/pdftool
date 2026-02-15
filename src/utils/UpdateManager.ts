@@ -73,9 +73,10 @@ class UpdateManager {
         });
       }
     } catch (error) {
-      console.error("Update check failed:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error("Update check failed:", errorMessage, error);
       if (!silent) {
-        toast.error(t("update.check_failed"), t("update.check_failed_message"));
+        toast.error(t("update.check_failed"), errorMessage || t("update.check_failed_message"));
       }
     } finally {
       this.isChecking = false;
@@ -152,8 +153,9 @@ class UpdateManager {
         );
       }
     } catch (error) {
-      console.error("Update installation failed:", error);
-      toast.error(t("update.install_failed"), t("update.install_failed_message"));
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error("Update installation failed:", errorMessage, error);
+      toast.error(t("update.install_failed"), errorMessage || t("update.install_failed_message"));
     }
   }
 
