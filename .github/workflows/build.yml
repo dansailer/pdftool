@@ -1,8 +1,6 @@
 name: Build
 
 on:
-  release:
-    types: [published]
   workflow_call:
   workflow_dispatch:
 
@@ -49,10 +47,17 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build Tauri app (macOS ARM64)
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: pnpm run tauri build
+
+      - name: List build artifacts (macOS)
         run: |
-          export TAURI_SIGNING_PRIVATE_KEY="${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
-          export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}"
-          pnpm run tauri build
+          echo "=== Bundle directory ==="
+          ls -laR src-tauri/target/release/bundle/ || echo "No bundle directory"
+          echo "=== Looking for .app.tar.gz and .sig files ==="
+          find src-tauri/target -name "*.app.tar.gz*" 2>/dev/null || echo "No .app.tar.gz found"
 
       - name: Upload macOS ARM64 artifacts
         uses: actions/upload-artifact@v4
@@ -60,8 +65,8 @@ jobs:
           name: macos-arm64
           path: |
             src-tauri/target/release/bundle/dmg/*.dmg
-            src-tauri/target/release/bundle/macos/*.app
-            src-tauri/target/release/pdftool
+            src-tauri/target/release/bundle/macos/*.app.tar.gz
+            src-tauri/target/release/bundle/macos/*.app.tar.gz.sig
           if-no-files-found: warn
 
   build-windows-amd64:
@@ -106,10 +111,18 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build Tauri app (Windows AMD64)
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: pnpm run tauri build
+        shell: pwsh
+
+      - name: List build artifacts (Windows)
         run: |
-          $env:TAURI_SIGNING_PRIVATE_KEY = "${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
-          $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = "${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}"
-          pnpm run tauri build
+          Write-Host "=== Bundle directory ==="
+          Get-ChildItem -Recurse src-tauri/target/release/bundle/ | Format-Table FullName, Length
+          Write-Host "=== Looking for .exe and .sig files ==="
+          Get-ChildItem -Recurse src-tauri/target/release/bundle/nsis/ -ErrorAction SilentlyContinue | Format-Table FullName, Length
         shell: pwsh
 
       - name: Create Windows portable zip
@@ -124,7 +137,7 @@ jobs:
           path: |
             pdftool-windows.zip
             src-tauri/target/release/bundle/nsis/*.exe
-            src-tauri/target/release/bundle/nsis/*.sig
+            src-tauri/target/release/bundle/nsis/*.exe.sig
           if-no-files-found: warn
 
   build-linux-x64:
@@ -174,10 +187,17 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build Tauri app (Linux x64)
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: pnpm run tauri build
+
+      - name: List build artifacts (Linux)
         run: |
-          export TAURI_SIGNING_PRIVATE_KEY="${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
-          export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}"
-          pnpm run tauri build
+          echo "=== Bundle directory ==="
+          ls -laR src-tauri/target/release/bundle/ || echo "No bundle directory"
+          echo "=== Looking for AppImage and .sig files ==="
+          find src-tauri/target -name "*.AppImage*" 2>/dev/null || echo "No AppImage found"
 
       - name: Create Linux portable archive
         run: |
@@ -192,5 +212,5 @@ jobs:
           path: |
             pdftool-linux-x64.tar.gz
             src-tauri/target/release/bundle/appimage/*.AppImage
-            src-tauri/target/release/bundle/appimage/*.sig
+            src-tauri/target/release/bundle/appimage/*.AppImage.sig
           if-no-files-found: warn

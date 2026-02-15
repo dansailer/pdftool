@@ -433,7 +433,7 @@ To enable auto-updates in production, you need to:
 2. **Add secrets to GitHub repository**:
    - Go to: Settings → Secrets and variables → Actions
    - Add `TAURI_SIGNING_PRIVATE_KEY`: Copy the contents of `.tauri/keys/priska-pdf-tool.key`
-   - Add `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`: Set to `NONE` if no password (GitHub doesn't allow empty secrets), or your actual password
+   - Add `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`: The password used when generating the key
 
 3. **Public key location**:
    - The public key is stored in `tauri.conf.json` under `plugins.updater.pubkey`

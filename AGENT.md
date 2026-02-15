@@ -11,6 +11,7 @@ This project is a Rust + Tauri + pdf.js desktop app with a TypeScript frontend. 
 
 - Only use dependencies that are recent and have strong community adoption (many GitHub stars).
 - Ask before adding any new dependencies (Rust or JS).
+- **Do NOT downgrade dependency versions without explicit user approval.** This includes GitHub Actions versions (e.g., `actions/checkout@v4` should not be changed to `@v3`).
 
 ## Frontend PDF Viewer
 
