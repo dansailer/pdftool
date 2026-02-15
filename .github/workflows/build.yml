@@ -29,10 +29,14 @@ jobs:
         run: |
           VERSION="${{ inputs.version }}"
           echo "Updating version to $VERSION"
+          # Use node for precise JSON updates (avoids regex issues with URLs)
+          node -e "const fs = require('fs'); const p = 'src-tauri/tauri.conf.json'; const j = JSON.parse(fs.readFileSync(p)); j.version = '$VERSION'; fs.writeFileSync(p, JSON.stringify(j, null, 2));"
+          node -e "const fs = require('fs'); const p = 'package.json'; const j = JSON.parse(fs.readFileSync(p)); j.version = '$VERSION'; fs.writeFileSync(p, JSON.stringify(j, null, 2));"
+          # Cargo.toml - only replace the first version line under [package]
           sed -i '' "s/^version = \".*\"/version = \"$VERSION\"/" src-tauri/Cargo.toml
-          sed -i '' 's/"version": ".*"/"version": "'"$VERSION"'"/' src-tauri/tauri.conf.json
-          sed -i '' 's/"version": ".*"/"version": "'"$VERSION"'"/' package.json
           echo "Updated all config files to version $VERSION"
+          echo "=== Verifying tauri.conf.json ==="
+          grep -E '"version"|endpoint' src-tauri/tauri.conf.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -110,10 +114,14 @@ jobs:
         run: |
           $VERSION = "${{ inputs.version }}"
           Write-Host "Updating version to $VERSION"
-          (Get-Content src-tauri/Cargo.toml) -replace '^version = ".*"', "version = `"$VERSION`"" | Set-Content src-tauri/Cargo.toml
-          (Get-Content src-tauri/tauri.conf.json) -replace '"version": ".*"', "`"version`": `"$VERSION`"" | Set-Content src-tauri/tauri.conf.json
-          (Get-Content package.json) -replace '"version": ".*"', "`"version`": `"$VERSION`"" | Set-Content package.json
+          # Use jq-like approach with node for precise JSON updates
+          node -e "const fs = require('fs'); const p = 'src-tauri/tauri.conf.json'; const j = JSON.parse(fs.readFileSync(p)); j.version = '$VERSION'; fs.writeFileSync(p, JSON.stringify(j, null, 2));"
+          node -e "const fs = require('fs'); const p = 'package.json'; const j = JSON.parse(fs.readFileSync(p)); j.version = '$VERSION'; fs.writeFileSync(p, JSON.stringify(j, null, 2));"
+          # Cargo.toml - only replace the first version line (package version)
+          (Get-Content src-tauri/Cargo.toml -Raw) -replace '(?m)^(version\s*=\s*)"[^"]*"', "`$1`"$VERSION`"" | Set-Content src-tauri/Cargo.toml -NoNewline
           Write-Host "Updated all config files to version $VERSION"
+          Write-Host "=== Verifying tauri.conf.json ==="
+          Get-Content src-tauri/tauri.conf.json | Select-String -Pattern "version|endpoint"
         shell: pwsh
 
       - name: Setup Node.js
@@ -205,10 +213,14 @@ jobs:
         run: |
           VERSION="${{ inputs.version }}"
           echo "Updating version to $VERSION"
+          # Use node for precise JSON updates (avoids regex issues with URLs)
+          node -e "const fs = require('fs'); const p = 'src-tauri/tauri.conf.json'; const j = JSON.parse(fs.readFileSync(p)); j.version = '$VERSION'; fs.writeFileSync(p, JSON.stringify(j, null, 2));"
+          node -e "const fs = require('fs'); const p = 'package.json'; const j = JSON.parse(fs.readFileSync(p)); j.version = '$VERSION'; fs.writeFileSync(p, JSON.stringify(j, null, 2));"
+          # Cargo.toml - only replace the first version line under [package]
           sed -i "s/^version = \".*\"/version = \"$VERSION\"/" src-tauri/Cargo.toml
-          sed -i 's/"version": ".*"/"version": "'"$VERSION"'"/' src-tauri/tauri.conf.json
-          sed -i 's/"version": ".*"/"version": "'"$VERSION"'"/' package.json
           echo "Updated all config files to version $VERSION"
+          echo "=== Verifying tauri.conf.json ==="
+          grep -E '"version"|endpoint' src-tauri/tauri.conf.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
