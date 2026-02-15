@@ -107,11 +107,13 @@ jobs:
           WINDOWS_EXE=$(find release -maxdepth 1 -name "*-setup.exe" -type f | head -1)
           if [ -n "$WINDOWS_EXE" ]; then
             WINDOWS_BASENAME=$(basename "$WINDOWS_EXE")
-            echo "Found Windows NSIS exe: $WINDOWS_BASENAME"
+            # GitHub Release converts spaces to dots in filenames
+            WINDOWS_URL_NAME=$(echo "$WINDOWS_BASENAME" | tr ' ' '.')
+            echo "Found Windows NSIS exe: $WINDOWS_BASENAME -> URL: $WINDOWS_URL_NAME"
             if [ -f "${WINDOWS_EXE}.sig" ]; then
               WINDOWS_SIG=$(cat "${WINDOWS_EXE}.sig")
               echo "Found Windows signature"
-              PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "${BASE_URL}/${WINDOWS_BASENAME}" --arg sig "$WINDOWS_SIG" \
+              PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "${BASE_URL}/${WINDOWS_URL_NAME}" --arg sig "$WINDOWS_SIG" \
                 '. + {"windows-x86_64": {"signature": $sig, "url": $url}}')
             else
               echo "Warning: No signature file found for $WINDOWS_BASENAME"
@@ -122,11 +124,13 @@ jobs:
           LINUX_APPIMAGE=$(find release -maxdepth 1 -name "*.AppImage" -type f | head -1)
           if [ -n "$LINUX_APPIMAGE" ]; then
             LINUX_BASENAME=$(basename "$LINUX_APPIMAGE")
-            echo "Found Linux AppImage: $LINUX_BASENAME"
+            # GitHub Release converts spaces to dots in filenames
+            LINUX_URL_NAME=$(echo "$LINUX_BASENAME" | tr ' ' '.')
+            echo "Found Linux AppImage: $LINUX_BASENAME -> URL: $LINUX_URL_NAME"
             if [ -f "${LINUX_APPIMAGE}.sig" ]; then
               LINUX_SIG=$(cat "${LINUX_APPIMAGE}.sig")
               echo "Found Linux signature"
-              PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "${BASE_URL}/${LINUX_BASENAME}" --arg sig "$LINUX_SIG" \
+              PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "${BASE_URL}/${LINUX_URL_NAME}" --arg sig "$LINUX_SIG" \
                 '. + {"linux-x86_64": {"signature": $sig, "url": $url}}')
             else
               echo "Warning: No signature file found for $LINUX_BASENAME"
@@ -137,11 +141,13 @@ jobs:
           MACOS_APP=$(find release -maxdepth 1 -name "*.app.tar.gz" -type f | head -1)
           if [ -n "$MACOS_APP" ]; then
             MACOS_BASENAME=$(basename "$MACOS_APP")
-            echo "Found macOS app: $MACOS_BASENAME"
+            # GitHub Release converts spaces to dots in filenames
+            MACOS_URL_NAME=$(echo "$MACOS_BASENAME" | tr ' ' '.')
+            echo "Found macOS app: $MACOS_BASENAME -> URL: $MACOS_URL_NAME"
             if [ -f "${MACOS_APP}.sig" ]; then
               MACOS_SIG=$(cat "${MACOS_APP}.sig")
               echo "Found macOS signature"
-              PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "${BASE_URL}/${MACOS_BASENAME}" --arg sig "$MACOS_SIG" \
+              PLATFORMS=$(echo "$PLATFORMS" | jq --arg url "${BASE_URL}/${MACOS_URL_NAME}" --arg sig "$MACOS_SIG" \
                 '. + {"darwin-aarch64": {"signature": $sig, "url": $url}}')
             else
               echo "Warning: No signature file found for $MACOS_BASENAME"
