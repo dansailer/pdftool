@@ -1,0 +1,18 @@
+---
+layout: default
+---
+
+<div class="home-hero">
+  {% assign t = site.data[page.lang] %}
+  <h1>{{ t.home.title }}</h1>
+  <p class="tagline">{{ t.home.tagline }}</p>
+  <p class="description">{{ t.home.description }}</p>
+  <div class="hero-actions">
+    <a href="{{ '/' | append: page.lang | append: '/getting-started/' | relative_url }}" class="btn btn-primary btn-large">{{ t.home.get_started }}</a>
+    <a href="{{ '/' | append: page.lang | append: '/features/' | relative_url }}" class="btn btn-secondary btn-large">{{ t.home.view_features }}</a>
+  </div>
+</div>
+
+<div class="home-content">
+  {{ content }}
+</div>

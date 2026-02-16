@@ -1,0 +1,90 @@
+# German translations
+nav:
+  home: "Startseite"
+  getting-started: "Erste Schritte"
+  features: "Funktionen"
+  keyboard-shortcuts: "Tastenkombinationen"
+  troubleshooting: "Problembehandlung"
+  faq: "FAQ"
+  about: "Info"
+
+ui:
+  language: "Sprache"
+  switch_language: "Sprache wechseln"
+  table_of_contents: "Inhaltsverzeichnis"
+  on_this_page: "Auf dieser Seite"
+  edit_page: "Diese Seite bearbeiten"
+  last_updated: "Zuletzt aktualisiert"
+
+home:
+  title: "Priska PDF Tool"
+  tagline: "Eine elegante, plattformunabhaengige PDF-Anwendung"
+  description: "Inspiriert von der intuitiven Oberflaeche von Mac Preview bietet Priska PDF Tool eine einfache, aber leistungsstarke Moeglichkeit, PDF-Dokumente auf macOS, Windows und Linux zu bearbeiten."
+  get_started: "Erste Schritte"
+  view_features: "Funktionen ansehen"
+  download: "Herunterladen"
+
+getting_started:
+  title: "Erste Schritte"
+  description: "Erfahren Sie, wie Sie Priska PDF Tool installieren und verwenden"
+  installation: "Installation"
+  installation_desc: "Laden Sie die neueste Version fuer Ihre Plattform herunter"
+  first_steps: "Erste Schritte"
+  opening_files: "PDF-Dateien oeffnen"
+  basic_navigation: "Grundlegende Navigation"
+
+features:
+  title: "Funktionen"
+  description: "Entdecken Sie alle leistungsstarken Funktionen von Priska PDF Tool"
+  viewing: "PDF-Anzeige"
+  viewing_desc: "Hochwertige PDF-Darstellung mit Zoom-Steuerung und Seitennavigation"
+  merging: "PDFs zusammenfuehren"
+  merging_desc: "Kombinieren Sie mehrere PDF-Dateien zu einem Dokument"
+  reordering: "Seiten neu anordnen"
+  reordering_desc: "Ziehen und ablegen, um Seiten in Ihrem Dokument neu anzuordnen"
+  deleting: "Seiten loeschen"
+  deleting_desc: "Entfernen Sie unerwuenschte Seiten aus Ihrer PDF"
+  rotating: "Seiten drehen"
+  rotating_desc: "Drehen Sie Seiten nach links oder rechts in 90-Grad-Schritten"
+  undo_redo: "Rueckgaengig/Wiederholen"
+  undo_redo_desc: "Vollstaendige Rueckgaengig- und Wiederholen-Unterstuetzung fuer alle Operationen"
+  themes: "Dunkles/Helles Design"
+  themes_desc: "Waehlen Sie Ihr bevorzugtes Erscheinungsbild"
+  metadata: "Dokument-Metadaten"
+  metadata_desc: "Legen Sie Titel, Autor, Betreff und Schluesselwoerter beim Speichern fest"
+  auto_update: "Automatische Updates"
+  auto_update_desc: "Bleiben Sie mit automatischen Update-Benachrichtigungen auf dem neuesten Stand"
+
+shortcuts:
+  title: "Tastenkombinationen"
+  description: "Meistern Sie Priska PDF Tool mit diesen Tastenkombinationen"
+  action: "Aktion"
+  macos: "macOS"
+  windows_linux: "Windows/Linux"
+  file_operations: "Dateioperationen"
+  editing: "Bearbeitung"
+  navigation: "Navigation"
+  view: "Ansicht"
+
+troubleshooting:
+  title: "Problembehandlung"
+  description: "Loesungen fuer haeufige Probleme"
+  common_issues: "Haeufige Probleme"
+  contact_support: "Support kontaktieren"
+
+faq:
+  title: "Haeufig gestellte Fragen"
+  description: "Finden Sie Antworten auf haeufige Fragen"
+
+about:
+  title: "Info"
+  description: "Ueber Priska PDF Tool"
+  version: "Version"
+  author: "Autor"
+  license: "Lizenz"
+  source_code: "Quellcode"
+
+footer:
+  copyright: "Priska PDF Tool"
+  built_with: "Erstellt mit"
+  and: "und"

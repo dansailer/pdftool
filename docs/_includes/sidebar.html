@@ -1,0 +1,40 @@
+{% assign t = site.data[page.lang] %}
+<div class="sidebar-section">
+  <h4>{{ t.nav.getting-started }}</h4>
+  <ul>
+    <li><a href="{{ '/' | append: page.lang | append: '/getting-started/' | relative_url }}">{{ t.getting_started.installation }}</a></li>
+    <li><a href="{{ '/' | append: page.lang | append: '/getting-started/#opening-files' | relative_url }}">{{ t.getting_started.opening_files }}</a></li>
+    <li><a href="{{ '/' | append: page.lang | append: '/getting-started/#basic-navigation' | relative_url }}">{{ t.getting_started.basic_navigation }}</a></li>
+  </ul>
+</div>
+
+<div class="sidebar-section">
+  <h4>{{ t.nav.features }}</h4>
+  <ul>
+    <li><a href="{{ '/' | append: page.lang | append: '/features/#viewing' | relative_url }}">{{ t.features.viewing }}</a></li>
+    <li><a href="{{ '/' | append: page.lang | append: '/features/#merging' | relative_url }}">{{ t.features.merging }}</a></li>
+    <li><a href="{{ '/' | append: page.lang | append: '/features/#reordering' | relative_url }}">{{ t.features.reordering }}</a></li>
+    <li><a href="{{ '/' | append: page.lang | append: '/features/#deleting' | relative_url }}">{{ t.features.deleting }}</a></li>
+    <li><a href="{{ '/' | append: page.lang | append: '/features/#rotating' | relative_url }}">{{ t.features.rotating }}</a></li>
+    <li><a href="{{ '/' | append: page.lang | append: '/features/#undo-redo' | relative_url }}">{{ t.features.undo_redo }}</a></li>
+    <li><a href="{{ '/' | append: page.lang | append: '/features/#themes' | relative_url }}">{{ t.features.themes }}</a></li>
+    <li><a href="{{ '/' | append: page.lang | append: '/features/#metadata' | relative_url }}">{{ t.features.metadata }}</a></li>
+  </ul>
+</div>
+
+<div class="sidebar-section">
+  <h4>{{ t.nav.keyboard-shortcuts }}</h4>
+  <ul>
+    <li><a href="{{ '/' | append: page.lang | append: '/keyboard-shortcuts/' | relative_url }}">{{ t.shortcuts.file_operations }}</a></li>
+    <li><a href="{{ '/' | append: page.lang | append: '/keyboard-shortcuts/#editing' | relative_url }}">{{ t.shortcuts.editing }}</a></li>
+    <li><a href="{{ '/' | append: page.lang | append: '/keyboard-shortcuts/#navigation' | relative_url }}">{{ t.shortcuts.navigation }}</a></li>
+  </ul>
+</div>
+
+<div class="sidebar-section">
+  <h4>{{ t.nav.troubleshooting }}</h4>
+  <ul>
+    <li><a href="{{ '/' | append: page.lang | append: '/troubleshooting/' | relative_url }}">{{ t.troubleshooting.common_issues }}</a></li>
+    <li><a href="{{ '/' | append: page.lang | append: '/faq/' | relative_url }}">{{ t.nav.faq }}</a></li>
+  </ul>
+</div>

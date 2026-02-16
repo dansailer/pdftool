@@ -1,0 +1,32 @@
+---
+layout: null
+permalink: /
+---
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0; url={{ '/en/' | relative_url }}">
+  <title>Redirecting...</title>
+  <script>
+    // Detect browser language and redirect
+    (function() {
+      var lang = navigator.language || navigator.userLanguage;
+      var supportedLangs = ['en', 'de'];
+      var defaultLang = 'en';
+      
+      // Get the primary language code
+      var primaryLang = lang.split('-')[0].toLowerCase();
+      
+      // Check if supported
+      var targetLang = supportedLangs.includes(primaryLang) ? primaryLang : defaultLang;
+      
+      // Redirect
+      window.location.href = '{{ site.baseurl }}/' + targetLang + '/';
+    })();
+  </script>
+</head>
+<body>
+  <p>Redirecting to <a href="{{ '/en/' | relative_url }}">English documentation</a>...</p>
+</body>
+</html>

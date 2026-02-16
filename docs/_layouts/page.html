@@ -1,0 +1,33 @@
+---
+layout: default
+---
+
+<div class="page-container">
+  <aside class="sidebar">
+    <nav class="sidebar-nav">
+      {% include sidebar.html %}
+    </nav>
+  </aside>
+  
+  <article class="page-content">
+    <header class="page-header">
+      <h1>{{ page.title }}</h1>
+      {% if page.description %}
+      <p class="page-description">{{ page.description }}</p>
+      {% endif %}
+    </header>
+    
+    <div class="content">
+      {{ content }}
+    </div>
+  </article>
+  
+  {% if page.toc %}
+  <aside class="toc">
+    <nav class="toc-nav">
+      <h4>{% assign t = site.data[page.lang] %}{{ t.ui.on_this_page }}</h4>
+      {{ content | toc_only }}
+    </nav>
+  </aside>
+  {% endif %}
+</div>

@@ -1,0 +1,10 @@
+{% assign t = site.data[page.lang] %}
+<ul class="nav-list">
+  <li><a href="{{ '/' | append: page.lang | append: '/' | relative_url }}" {% if page.url == '/' or page.url == '/en/' or page.url == '/de/' %}class="active"{% endif %}>{{ t.nav.home }}</a></li>
+  <li><a href="{{ '/' | append: page.lang | append: '/getting-started/' | relative_url }}" {% if page.url contains 'getting-started' %}class="active"{% endif %}>{{ t.nav.getting-started }}</a></li>
+  <li><a href="{{ '/' | append: page.lang | append: '/features/' | relative_url }}" {% if page.url contains 'features' %}class="active"{% endif %}>{{ t.nav.features }}</a></li>
+  <li><a href="{{ '/' | append: page.lang | append: '/keyboard-shortcuts/' | relative_url }}" {% if page.url contains 'keyboard-shortcuts' %}class="active"{% endif %}>{{ t.nav.keyboard-shortcuts }}</a></li>
+  <li><a href="{{ '/' | append: page.lang | append: '/troubleshooting/' | relative_url }}" {% if page.url contains 'troubleshooting' %}class="active"{% endif %}>{{ t.nav.troubleshooting }}</a></li>
+  <li><a href="{{ '/' | append: page.lang | append: '/faq/' | relative_url }}" {% if page.url contains 'faq' %}class="active"{% endif %}>{{ t.nav.faq }}</a></li>
+  <li><a href="{{ '/' | append: page.lang | append: '/about/' | relative_url }}" {% if page.url contains 'about' %}class="active"{% endif %}>{{ t.nav.about }}</a></li>
+</ul>

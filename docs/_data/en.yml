@@ -1,0 +1,90 @@
+# English translations
+nav:
+  home: "Home"
+  getting-started: "Getting Started"
+  features: "Features"
+  keyboard-shortcuts: "Keyboard Shortcuts"
+  troubleshooting: "Troubleshooting"
+  faq: "FAQ"
+  about: "About"
+
+ui:
+  language: "Language"
+  switch_language: "Switch language"
+  table_of_contents: "Table of Contents"
+  on_this_page: "On this page"
+  edit_page: "Edit this page"
+  last_updated: "Last updated"
+
+home:
+  title: "Priska PDF Tool"
+  tagline: "A sleek, cross-platform PDF manipulation application"
+  description: "Inspired by the intuitive interface of Mac Preview, Priska PDF Tool offers a simple yet powerful way to handle PDF documents on macOS, Windows, and Linux."
+  get_started: "Get Started"
+  view_features: "View Features"
+  download: "Download"
+
+getting_started:
+  title: "Getting Started"
+  description: "Learn how to install and start using Priska PDF Tool"
+  installation: "Installation"
+  installation_desc: "Download the latest version for your platform"
+  first_steps: "First Steps"
+  opening_files: "Opening PDF Files"
+  basic_navigation: "Basic Navigation"
+
+features:
+  title: "Features"
+  description: "Discover all the powerful features of Priska PDF Tool"
+  viewing: "PDF Viewing"
+  viewing_desc: "High-quality PDF rendering with zoom controls and page navigation"
+  merging: "Merge PDFs"
+  merging_desc: "Combine multiple PDF files into one document"
+  reordering: "Reorder Pages"
+  reordering_desc: "Drag and drop to rearrange pages in your document"
+  deleting: "Delete Pages"
+  deleting_desc: "Remove unwanted pages from your PDF"
+  rotating: "Rotate Pages"
+  rotating_desc: "Rotate pages left or right in 90-degree increments"
+  undo_redo: "Undo/Redo"
+  undo_redo_desc: "Full undo and redo support for all operations"
+  themes: "Dark/Light Theme"
+  themes_desc: "Choose your preferred appearance"
+  metadata: "Document Metadata"
+  metadata_desc: "Set title, author, subject, and keywords when saving"
+  auto_update: "Auto Updates"
+  auto_update_desc: "Stay up to date with automatic update notifications"
+
+shortcuts:
+  title: "Keyboard Shortcuts"
+  description: "Master Priska PDF Tool with these keyboard shortcuts"
+  action: "Action"
+  macos: "macOS"
+  windows_linux: "Windows/Linux"
+  file_operations: "File Operations"
+  editing: "Editing"
+  navigation: "Navigation"
+  view: "View"
+
+troubleshooting:
+  title: "Troubleshooting"
+  description: "Solutions to common problems"
+  common_issues: "Common Issues"
+  contact_support: "Contact Support"
+
+faq:
+  title: "Frequently Asked Questions"
+  description: "Find answers to common questions"
+
+about:
+  title: "About"
+  description: "About Priska PDF Tool"
+  version: "Version"
+  author: "Author"
+  license: "License"
+  source_code: "Source Code"
+
+footer:
+  copyright: "Priska PDF Tool"
+  built_with: "Built with"
+  and: "and"

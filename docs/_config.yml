@@ -1,0 +1,55 @@
+# Jekyll configuration for Priska PDF Tool Documentation
+# GitHub Pages with internationalization support
+
+title: Priska PDF Tool
+description: A sleek, cross-platform PDF manipulation desktop application
+baseurl: "/pdftool"
+url: "https://dansailer.github.io"
+
+# Theme settings
+remote_theme: pages-themes/minimal@v0.2.0
+plugins:
+  - jekyll-remote-theme
+
+# Default language
+default_lang: en
+languages:
+  - en
+  - de
+
+# Language names for display
+language_names:
+  en: English
+  de: Deutsch
+
+# Build settings
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+
+# Exclude files
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+
+# Collections for pages
+collections:
+  pages:
+    output: true
+    permalink: /:path/
+
+# Default front matter
+defaults:
+  - scope:
+      path: "en"
+    values:
+      lang: en
+      layout: default
+  - scope:
+      path: "de"
+    values:
+      lang: de
+      layout: default

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: 'en' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{{ page.description | default: site.description }}">
+  <title>{% if page.title %}{{ page.title }} - {% endif %}{{ site.title }}</title>
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  <link rel="icon" type="image/svg+xml" href="{{ '/assets/images/favicon.svg' | relative_url }}">
+</head>
+<body>
+  {% assign t = site.data[page.lang] %}
+  
+  <header class="site-header">
+    <div class="header-content">
+      <a href="{{ '/' | append: page.lang | append: '/' | relative_url }}" class="site-logo">
+        <span class="logo-icon">📄</span>
+        <span class="logo-text">{{ site.title }}</span>
+      </a>
+      
+      <nav class="main-nav">
+        {% include navigation.html %}
+      </nav>
+      
+      <div class="header-actions">
+        {% include language-switcher.html %}
+        <a href="https://github.com/dansailer/pdftool/releases" class="btn btn-primary">{{ t.home.download }}</a>
+      </div>
+      
+      <button class="mobile-menu-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="site-main">
+    {{ content }}
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <p>&copy; 2024-2026 {{ t.footer.copyright }}. {{ t.footer.built_with }} <a href="https://tauri.app">Tauri</a> {{ t.footer.and }} <a href="https://www.rust-lang.org">Rust</a>.</p>
+      <p><a href="https://github.com/dansailer/pdftool">GitHub</a></p>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile menu toggle
+    document.querySelector('.mobile-menu-toggle').addEventListener('click', function() {
+      document.querySelector('.main-nav').classList.toggle('active');
+      this.classList.toggle('active');
+    });
+  </script>
+</body>
+</html>
