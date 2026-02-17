@@ -24,6 +24,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { ask } from "@tauri-apps/plugin-dialog";
 
 // Forward console logs to Tauri log plugin (visible in terminal)
+// Also receives Rust logs in the browser console
 attachConsoleToTauriLog();
 
 // Disable the default context menu (right-click menu with Reload/Inspect)

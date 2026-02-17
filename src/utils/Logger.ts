@@ -1,4 +1,4 @@
-import { debug, info, warn, error, trace } from "@tauri-apps/plugin-log";
+import { debug, info, warn, error, trace, attachConsole } from "@tauri-apps/plugin-log";
 
 /**
  * Logger utility that forwards to Tauri's log plugin.
@@ -29,9 +29,12 @@ export const logger = {
 
 /**
  * Attach console log forwarding to Tauri log plugin.
+ * Also attaches Rust log output to the browser console.
  * Call this once at app startup.
  */
-export function attachConsoleToTauriLog(): void {
+export async function attachConsoleToTauriLog(): Promise<void> {
+  // Attach Rust logs to browser console (requires TargetKind::Webview in Rust)
+  await attachConsole();
   const originalLog = console.log;
   const originalWarn = console.warn;
   const originalError = console.error;
